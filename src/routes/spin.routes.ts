@@ -1,9 +1,8 @@
-import { Router } from "express";
-import { handleOrder, handleSpin } from "../controllers/spin.controller";
+import express from "express";
+import { handleSpin } from "../controllers/spin.controller";
 
-const router = Router();
+const router = express.Router();
 
-router.post("/order", handleOrder);
-router.post("/spin", handleSpin);
+router.post("/spin/:userId", handleSpin);
 
 export default router;
