@@ -1,5 +1,6 @@
 import { User } from "../models/user.model";
 import { Spin } from "../models/spin.model";
+import { SpinBalance } from "../models/spinBalance.model";
 
 const rewards = [
     { value: 10, probability: 0.5 },   // 50%
@@ -35,6 +36,19 @@ export const spinWheel = async (userId: string) => {
     user.spinsAvailable -= 1;
     user.spinHistory.push(spin._id);
     await user.save();
+
+    const latestBalance = await SpinBalance.findOne({ userId: user._id }).sort({ createdAt: -1 });
+    const currentBalance = latestBalance ? latestBalance.balance : user.spinsAvailable + 1; // +1 eftersom vi redan dragit 1
+
+    // Skapa ny rad i SpinBalance
+    await SpinBalance.create({
+        userId: user._id,
+        balance: currentBalance - 1,
+        change: -1,
+        reason: "spin",
+        relatedId: spin._id.toString(),
+        createdAt: new Date(),
+    });
 
     return { reward, spinsAvailable: user.spinsAvailable };
 };

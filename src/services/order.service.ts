@@ -1,41 +1,36 @@
 import { Order } from "../models/order.model";
 import { User } from "../models/user.model";
-import { Spin } from "../models/spin.model";
-import { Types } from "mongoose";
+import { SpinBalance } from "../models/spinBalance.model";
 
-interface OrderInput {
+interface OrderData {
     order_id: string;
-    user_id: string;
-    created_at: string;
+    userId: string;
+    createdAt?: Date;
 }
 
-export const createOrder = async (orderData: OrderInput) => {
-    const user = await User.findById(orderData.user_id);
+export const createOrder = async (data: OrderData) => {
+    // 1. Skapa order
+    const order = await Order.create({
+        order_id: data.order_id,
+        userId: data.userId,
+        createdAt: data.createdAt || new Date(),
+    });
+
+    // 2. Uppdatera spins på användaren
+    const user = await User.findById(data.userId);
     if (!user) throw new Error("User not found");
 
-    const order = await Order.create({
-        order_id: orderData.order_id,
-        userId: new Types.ObjectId(orderData.user_id),
-        createdAt: new Date(orderData.created_at),
-    });
-
-    // Uppdatera spinsAvailable
-    user.spinsAvailable = (user.spinsAvailable || 0) + 1;
+    user.spinsAvailable += 1;
     await user.save();
 
-    // Skapa Spin
-    const spin = await Spin.create({
+      // 3. Logga SpinBalance
+    await SpinBalance.create({
         userId: user._id,
-        reward: 0,
-        createdAt: new Date(),
+        balance: user.spinsAvailable,
+        change: +1,
+        reason: "order",
+        relatedId: order.order_id,
     });
 
-    user.spinHistory.push(spin._id);
-    await user.save();
-
-    return {
-        message: "Order received and spin assigned",
-        order,
-        spinsAvailable: user.spinsAvailable,
-    };
+    return { order, spinsAvailable: user.spinsAvailable };
 };

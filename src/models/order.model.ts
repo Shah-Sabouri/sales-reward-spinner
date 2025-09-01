@@ -12,4 +12,4 @@ export const OrderSchema = new Schema<IOrder>({
     createdAt: { type: Date, required: true },
 });
 
-export const Order = model<IOrder>("Order", OrderSchema, "order");
+export const Order = model<IOrder>("Order", OrderSchema, "orders");

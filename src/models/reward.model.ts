@@ -5,4 +5,4 @@ const rewardSchema = new Schema({
     probability: { type: Number, required: true },
 })
 
-export const Reward = model("Reward", rewardSchema, "reward");
+export const Reward = model("Reward", rewardSchema);
