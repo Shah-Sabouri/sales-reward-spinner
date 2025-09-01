@@ -6,4 +6,4 @@ const spinSchema = new Schema({
     createdAt: { type: Date, default: Date.now },
 });
 
-export const User = model("spins", spinSchema);
+export const Spin = model("spins", spinSchema);

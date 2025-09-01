@@ -1,4 +1,10 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, Types, model, Document } from "mongoose";
+
+export interface IUser extends Document {
+    name: string;
+    spinsAvailable: number;
+    spinHistory: Types.ObjectId[];
+}
 
 const userSchema = new Schema({
     name: { type: String, required: true },
@@ -6,4 +12,4 @@ const userSchema = new Schema({
     spinHistory: [{ type: Types.ObjectId, ref: "Spin"}],
 });
 
-export const User = model("users", userSchema);
+export const User = model<IUser>("users", userSchema);
