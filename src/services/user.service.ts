@@ -1,16 +1,25 @@
 import { User } from "../models/user.model";
 
-interface CreateUserInput {
+interface CreateOrLoginInput {
     name: string;
 }
 
-export const createUser = async (data: CreateUserInput) => {
-    const user = new User({
+export const createOrLoginUser = async (data: CreateOrLoginInput) => {
+
+    let user = await User.findOne({
+        name:data.name
+    });
+
+    if (!user) {
+            const user = new User({
         name: data.name,
         spinsAvailable: 0,
         spinHistory: []
     });
-
     await user.save();
-    return user;
+    console.log("new user creeated:")
+    } else {
+        console.log("user logged in");
+    }
+return user;  
 };
