@@ -1,37 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sales Reward spinner</title>
+  <title>Sales Reward Spinner</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <h1>register/log in</h1>
-    
-    <form id="registerForm">
-    <label for ="name">Name:</label>
+  <h1>Register / Log in</h1>
+
+  <form id="registerForm">
+    <label for="name">Name:</label>
     <input type="text" id="name" name="name" required>
-    <input type="submit" value="send">
-    </form>
+    <input type="submit" value="Send">
+  </form>
 
-    <form id="orderForm">
-      <input type="checkbox" id="egg" name="egg" value="egg"> Egg
-    </label>
-    <label>
-      <input type="checkbox" id="milk" name="milk" value="milk"> Milk
-    </label>
-    <label>
-      <input type="checkbox" id="butter" name="butter" value="butter"> Butter
-    </label>
+  <form id="orderForm">
+    <label><input type="checkbox" id="egg" value="egg"> Egg</label>
+    <label><input type="checkbox" id="milk" value="milk"> Milk</label>
+    <label><input type="checkbox" id="butter" value="butter"> Butter</label>
     <input type="submit" value="Add order">
-    </form>
-    
-    <button id="spinButton">spin the wheel</button>
-<div id="result"></div>
+  </form>
 
-<script src="index.js"></script>
+  <button id="spinButton">Spin the wheel</button>
+
+  <h2 id="userInfo"></h2>
+
+  <h3>Spin History</h3>
+  <ul id="spinHistoryList"></ul>
+
+  <script src="index.js"></script>
 </body>
 </html>

@@ -52,3 +52,13 @@ export const spinWheel = async (userId: string) => {
 
     return { reward, spinsAvailable: user.spinsAvailable };
 };
+
+//SPIN-HISTORIK
+export const getSpinHistory = async (userId: string) => {
+    const user = await User.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    // Hämta alla spins för användaren
+    const spins = await Spin.find({ userId: user._id }).sort({ createdAt: -1 }); // nyaste först
+    return spins;
+};

@@ -1,6 +1,6 @@
 let currentUser = null;
 
-// Logga in / register
+// LOGIN / REGISTER
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = document.getElementById("name").value;
@@ -12,21 +12,18 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
             body: JSON.stringify({ name })
         });
         const data = await res.json();
-        console.log("Register response:", data);
-        currentUser = data; // innehåller _id och spinsAvailable
-        document.getElementById("result").innerText = `Logged in as ${currentUser.name}. Spins: ${currentUser.spinsAvailable || 0}`;
+        currentUser = data;
+        updateUserInfo();
+        await showSpinHistory();
     } catch (err) {
-        document.getElementById("result").innerText = "Error: " + err.message;
+        alert("Error: " + err.message);
     }
 });
 
-// Skapa order
+// ADD ORDER
 document.getElementById("orderForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!currentUser) {
-        document.getElementById("result").innerText = "Log in first";
-        return;
-    }
+    if (!currentUser) return alert("Log in first");
 
     const items = [];
     if (document.getElementById("egg").checked) items.push("egg");
@@ -38,32 +35,27 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                order_id: "order_" + Date.now(),       // unik id
-                userId: currentUser._id,             // viktigt!
-                created_at: new Date().toISOString(), // krävs i modellen
-                items                                  // kan sparas om du vill
+                order_id: "order_" + Date.now(),
+                userId: currentUser._id,
+                created_at: new Date().toISOString(),
+                items
             })
         });
 
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
-        // Uppdatera spins på currentUser
         currentUser.spinsAvailable = data.spinsAvailable;
-        document.getElementById("result").innerText = 
-        `Order added! Spins now: ${currentUser.spinsAvailable}`;
+        updateUserInfo();
+        await showSpinHistory();
     } catch (err) {
-        document.getElementById("result").innerText = "Error: " + err.message;
+        alert("Error: " + err.message);
     }
 });
 
-
-// Snurra hjul
+// SPIN
 document.getElementById("spinButton").addEventListener("click", async () => {
-    if (!currentUser) {
-        document.getElementById("result").innerText = "Log in first";
-        return;
-    }
+    if (!currentUser) return alert("Log in first");
 
     try {
         const res = await fetch(`/api/spin/${currentUser._id}`, { method: "POST" });
@@ -71,9 +63,41 @@ document.getElementById("spinButton").addEventListener("click", async () => {
         if (data.error) throw new Error(data.error);
 
         currentUser.spinsAvailable = data.spinsAvailable;
-        document.getElementById("result").innerText = `You won ${data.reward} points! Spins left: ${currentUser.spinsAvailable}`;
+        updateUserInfo();
+        await showSpinHistory();
+        alert(`You won ${data.reward} points!`);
     } catch (err) {
-        document.getElementById("result").innerText = "Error: " + err.message;
+        alert("Error: " + err.message);
     }
 });
 
+// SHOW USER INFO
+function updateUserInfo() {
+    document.getElementById("userInfo").innerText =
+        `Logged in as ${currentUser.name}. Spins: ${currentUser.spinsAvailable}`;
+}
+
+// SHOW SPIN HISTORY
+async function showSpinHistory() {
+    if (!currentUser) return;
+
+    try {
+        const res = await fetch(`/api/spin/history/${currentUser._id}`);
+        const spins = await res.json();
+
+        const list = document.getElementById("spinHistoryList");
+        list.innerHTML = "";
+
+        const seen = new Set();
+        spins.forEach(spin => {
+            if (!seen.has(spin._id)) {
+                seen.add(spin._id);
+                const li = document.createElement("li");
+                li.innerText = `Reward: ${spin.reward}, Date: ${new Date(spin.createdAt).toLocaleString()}`;
+                list.appendChild(li);
+            }
+        });
+    } catch (err) {
+        console.error(err);
+    }
+}
