@@ -12,6 +12,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
             body: JSON.stringify({ name })
         });
         const data = await res.json();
+        console.log("Register response:", data);
         currentUser = data; // innehåller _id och spinsAvailable
         document.getElementById("result").innerText = `Logged in as ${currentUser.name}. Spins: ${currentUser.spinsAvailable || 0}`;
     } catch (err) {
@@ -37,20 +38,25 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user_id: currentUser._id, // viktigt! matchar order.model
-                items
+                order_id: "order_" + Date.now(),       // unik id
+                userId: currentUser._id,             // viktigt!
+                created_at: new Date().toISOString(), // krävs i modellen
+                items                                  // kan sparas om du vill
             })
         });
+
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
         // Uppdatera spins på currentUser
         currentUser.spinsAvailable = data.spinsAvailable;
-        document.getElementById("result").innerText = `Order added! Spins now: ${currentUser.spinsAvailable}`;
+        document.getElementById("result").innerText = 
+        `Order added! Spins now: ${currentUser.spinsAvailable}`;
     } catch (err) {
         document.getElementById("result").innerText = "Error: " + err.message;
     }
 });
+
 
 // Snurra hjul
 document.getElementById("spinButton").addEventListener("click", async () => {

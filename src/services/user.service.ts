@@ -5,21 +5,19 @@ interface CreateOrLoginInput {
 }
 
 export const createOrLoginUser = async (data: CreateOrLoginInput) => {
-
-    let user = await User.findOne({
-        name:data.name
-    });
+    let user = await User.findOne({ name: data.name });
 
     if (!user) {
-            const user = new User({
-        name: data.name,
-        spinsAvailable: 0,
-        spinHistory: []
-    });
-    await user.save();
-    console.log("new user creeated:")
+        user = new User({
+            name: data.name,
+            spinsAvailable: 0,
+            spinHistory: []
+        });
+        await user.save();
+        console.log("new user created");
     } else {
         console.log("user logged in");
     }
-return user;  
+
+    return user;  // 👈 nu returneras alltid en användare
 };
